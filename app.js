@@ -72,20 +72,4 @@ app.get('/oauth2callback', async (req, res) => {
     res.send('Probando!');
 });
 
-app.post('/oauth2callback', function (req, res) {
-    console.log("ME LLEGO ALGOOOO2")
-    /*const youtube = google.youtube({
-        version: 'v3',
-        auth: sampleClient.oAuth2Client,
-      });
-    sampleClient
-        .authenticate(scopes)
-        .then(url => {
-
-        })
-        .then(() => upload.runSample(fileName))
-        .catch(console.error);
-    res.send('Probando!');*/
-});
-
 console.log("amigo", process.argv)
