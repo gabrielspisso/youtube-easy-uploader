@@ -20,20 +20,13 @@
 const fs = require('fs');
 const readline = require('readline');
 
-const {google} = require('googleapis');
-const sampleClient = require('./sampleclient');
-
 // initialize the Youtube API library
-const youtube = google.youtube({
-  version: 'v3',
-  auth: sampleClient.oAuth2Client,
-});
 
 // very basic example of uploading a video to youtube
-async function runSample(fileName) {
-
+async function runSample(youtube,fileName) {
+  console.log("EL ARCHIVO FUE",fileName)
   const fileSize = fs.statSync(fileName).size;
-  const res = await youtube.videos.insert(
+  youtube.videos.insert(
     {
       part: 'id,snippet,status',
       notifySubscribers: false,
@@ -60,10 +53,11 @@ async function runSample(fileName) {
         process.stdout.write(`${Math.round(progress)}% complete`);
       },
     }
-  );
-  console.log('\n\n');
-  console.log(res.data);
-  return res.data;
+  )
+  .catch(e => console.log(e));
+ // console.log('\n\n');
+  //console.log(res.data);
+  //return res.data;
 }
 
 

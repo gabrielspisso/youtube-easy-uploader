@@ -18,7 +18,7 @@
  */
 
 // [START auth_oauth2_workflow]
-const {google} = require('googleapis');
+const { google } = require('googleapis');
 const http = require('http');
 const url = require('url');
 const opn = require('open');
@@ -46,14 +46,14 @@ your keyfile, and add a 'redirect_uris' section.  For example:
 
 class SampleClient {
   constructor(options) {
-    this._options = options || {scopes: []};
+    this._options = options || { scopes: [] };
 
     // validate the redirectUri.  This is a frequent cause of confusion.
     if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
       throw new Error(invalidRedirectUri);
     }
     const redirectUri = keys.redirect_uris[keys.redirect_uris.length - 1];
-    console.log("LA URLLLL",redirectUri)
+    console.log("LA URLLLL", redirectUri)
     const parts = new url.URL(redirectUri);
     if (
       redirectUri.length === 0 ||
@@ -75,6 +75,13 @@ class SampleClient {
   // Open an http server to accept the oauth callback. In this
   // simple example, the only request to our webserver is to
   // /oauth2callback?code=<code>
+
+  async clientWithCredentials(code) {
+    const { tokens } = await this.oAuth2Client.getToken(code);
+    this.oAuth2Client.credentials = tokens;
+    return this.oAuth2Client;
+  }
+
   async authenticate(scopes) {
     return new Promise((resolve, reject) => {
       // grab the url that will be used for authorization
