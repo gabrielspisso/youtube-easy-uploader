@@ -28,7 +28,7 @@ const path = require('path');
 
 const keyPath = path.join(__dirname, 'oauth2.keys.json');
 let keys = {
-  redirect_uris: ['http://localhost:8080/oauth2callback'],
+  redirect_uris: ['http://192.168.0.8:8080/oauth2callback'],
 };
 if (fs.existsSync(keyPath)) {
   const keyFile = require(keyPath);
@@ -52,13 +52,14 @@ class SampleClient {
     if (!keys.redirect_uris || keys.redirect_uris.length === 0) {
       throw new Error(invalidRedirectUri);
     }
-    const redirectUri = keys.redirect_uris[keys.redirect_uris.length - 1];
+    //const redirectUri = keys.redirect_uris[keys.redirect_uris.length - 1];
+    const redirectUri = "http://192.168.0.8.xip.io:8080/oauth2callback";
     console.log("LA URLLLL", redirectUri)
     const parts = new url.URL(redirectUri);
     if (
       redirectUri.length === 0 ||
       parts.port !== '8080' ||
-      parts.hostname !== 'localhost' ||
+    //  parts.hostname !== 'localhost' ||
       parts.pathname !== '/oauth2callback'
     ) {
       throw new Error(invalidRedirectUri);

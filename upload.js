@@ -23,10 +23,10 @@ const readline = require('readline');
 // initialize the Youtube API library
 
 // very basic example of uploading a video to youtube
-async function runSample(youtube,fileName) {
-  console.log("EL ARCHIVO FUE",fileName)
+async function runSample(youtube, fileName) {
+  console.log("EL ARCHIVO FUE", fileName)
   const fileSize = fs.statSync(fileName).size;
-  youtube.videos.insert(
+  const res = await youtube.videos.insert(
     {
       part: 'id,snippet,status',
       notifySubscribers: false,
@@ -54,9 +54,9 @@ async function runSample(youtube,fileName) {
       },
     }
   )
-  .catch(e => console.log(e));
- // console.log('\n\n');
-  //console.log(res.data);
+    .catch(e => console.log(e));
+  console.log('\n\n');
+  console.log(res.data);
   //return res.data;
 }
 

@@ -37,9 +37,10 @@ app.get('/oauth2callback', async (req, res) => {
     console.log("ME LLEGO ALGOOOO12")
     //res.send('Probando!');
     console.log("EL REQ TIENE:",req.query.code);
+    const clientWithCredentials = await sampleClient.clientWithCredentials(req.query.code);
     const youtube = await google.youtube({
         version: 'v3',
-        auth: sampleClient.clientWithCredentials(req.query.code),
+        auth: clientWithCredentials,
       });
       upload.runSample(youtube, fileName)
       //console.log("EL RES TIENE:",res);
