@@ -8,7 +8,7 @@ async function upload({youtube, fileName, title, description, privacy}) {
     throw new Error("Can't resolve for file: ",fileName);
   }
   const fileSize = fs.statSync(fileName).size;
-  const res = await youtube.videos.insert(
+  return await youtube.videos.insert(
     {
       part: 'id,snippet,status',
       notifySubscribers: false,
@@ -36,8 +36,6 @@ async function upload({youtube, fileName, title, description, privacy}) {
       },
     }
   )
-    .catch(e => console.log(e));
-  return res.data;
 }
 
 module.exports = {

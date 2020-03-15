@@ -15,11 +15,11 @@ const description = process.argv[6] || "Test description";
 const privacy = process.argv[7] || "public";
 const youtubeClient = new YoutubeClient(credentials);
 
-console.log("credentials vale: ",credentials)
-
 app.get('/', function (req, res) {
     res.send('Hello World!');
 });
+
+let videoUploadOnCourse = false;
 
 app.get('/upload', function (req, res) {
     if (refresh_token == "") {
@@ -27,21 +27,31 @@ app.get('/upload', function (req, res) {
             .then(url => {
                 res.redirect(url);
             })
+            .then(() => {
+                videoUploadOnCourse = true;
+                console.log("The process will end in 30 seconds if you dont autenticate")
+                setTimeout(() => {
+                    if (videoUploadOnCourse)
+                        process.exit()
+                }, 30000);
+            })
     }
-    else{
+    else {
         uploadByRefreshToken();
         res.send('Uploading with refresh token');
     }
 });
 
 const uploadVideo = (youtube) => {
-    youtubeFunctions.upload({ 
+    youtubeFunctions.upload({
         youtube: youtube,
         fileName: fileName,
         title: title,
         description: description,
         privacy: privacy
     })
+    .catch(e => console.log("Hubo un error en la subida:",e))
+    .then(res => console.log("Se subio correctamente, el resultado fue: ",res.data))
 }
 
 const uploadByRefreshToken = async () => {
@@ -51,8 +61,7 @@ const uploadByRefreshToken = async () => {
 
 app.get('/oauth2callback', async (req, res) => {
     const youtube = await youtubeClient.CreateClientByOAuth2(req.query.code);
-    uploadVideo(youtube);
+    videoUploadOnCourse = false;
+    uploadVideo(youtube)
     res.send('Uploading with oauth login');
 });
-
-console.log("amigo", process.argv)
