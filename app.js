@@ -1,88 +1,58 @@
-const upload = require('./upload');
-const sampleClient = require('./sampleclient');
-const {google} = require('googleapis');
+const YoutubeClient = require('./youtubeClient');
+const youtubeFunctions = require('./youtubeFunctions');
 const express = require('express');
 var app = express();
-
 
 app.listen(8080, function () {
     console.log('Example app listening on port 8080!');
 });
 
-const scopes = [
-    'https://www.googleapis.com/auth/youtube.upload',
-    'https://www.googleapis.com/auth/youtube',
-];
+const credentials = process.argv[2];
+const refresh_token = process.argv[3];
+const fileName = process.argv[4];
+const title = process.argv[5] || "Test title";
+const description = process.argv[6] || "Test description";
+const privacy = process.argv[7] || "public";
+const youtubeClient = new YoutubeClient(credentials);
 
-const fileName = process.argv[2];
-
-
+console.log("credentials vale: ",credentials)
 
 app.get('/', function (req, res) {
     res.send('Hello World!');
 });
 
-app.get('/prueba', function (req, res) {
-    sampleClient
-        .authenticate(scopes)
-        .then(url => {
-            res.redirect(url);
-        })
-        //.then(() => upload.runSample(fileName))
-        //.catch(console.error);
-    //res.send('Probando!');
+app.get('/upload', function (req, res) {
+    if (refresh_token == "") {
+        youtubeClient.authenticate()
+            .then(url => {
+                res.redirect(url);
+            })
+    }
+    else{
+        uploadByRefreshToken();
+        res.send('Uploading with refresh token');
+    }
 });
 
-app.get('/upload', async (req, res) => {
-    const clientWithCredentials = await sampleClient.clientWithRefreshToken();
-    console.log(clientWithCredentials.credentials)
-    const youtube = await google.youtube({
-        version: 'v3',
-        auth: clientWithCredentials,
-      });
-      upload.runSample(youtube, fileName)
-      res.send('Probando2!');
-})
+const uploadVideo = (youtube) => {
+    youtubeFunctions.upload({ 
+        youtube: youtube,
+        fileName: fileName,
+        title: title,
+        description: description,
+        privacy: privacy
+    })
+}
+
+const uploadByRefreshToken = async () => {
+    const youtube = await youtubeClient.CreateClientByRefreshToken(refresh_token);
+    uploadVideo(youtube);
+}
 
 app.get('/oauth2callback', async (req, res) => {
-    console.log("ME LLEGO ALGOOOO12")
-    //res.send('Probando!');
-    console.log("EL REQ TIENE:",req.query.code);
-    const clientWithCredentials = await sampleClient.clientWithCredentials(req.query.code);
-    console.log(clientWithCredentials.credentials)
-    const youtube = await google.youtube({
-        version: 'v3',
-        auth: clientWithCredentials,
-      });
-      upload.runSample(youtube, fileName)
-      //console.log("EL RES TIENE:",res);
-
-      //if (req.url.indexOf('/oauth2callback') > -1) {
-        //         const qs = new url.URL(req.url, 'http://localhost:8080')
-        //           .searchParams;
-        //         res.end(
-        //           'Authentication successful! Please return to the console.'
-        //         );
-        //         server.destroy();
-                 //const {tokens} = await this.oAuth2Client.getToken(res.get('code'));
-        //         this.oAuth2Client.credentials = tokens;
-        //         resolve(this.oAuth2Client);
-        //         console.log("EL RESPONSE TIENE:",res)
-        //         console.log("EL refresh_token TIENE:",res.refresh_token)              
-        //       }
-        //     } catch (e) {
-        //       reject(e);
-        //     }
-
-    //upload.runSample(youtube,fileName)
-    /*sampleClient
-        .authenticate(scopes)
-        .then(url => {
-
-        })
-        .then(() => upload.runSample(fileName))
-        .catch(console.error);*/
-    res.send('Probando!');
+    const youtube = await youtubeClient.CreateClientByOAuth2(req.query.code);
+    uploadVideo(youtube);
+    res.send('Uploading with oauth login');
 });
 
 console.log("amigo", process.argv)

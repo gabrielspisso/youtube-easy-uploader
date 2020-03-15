@@ -10,15 +10,15 @@ if (fs.existsSync(keyPath)) {
 }
 
 class YoutubeClient {
-  constructor(options) {
-    const { credentials } = options;
+  constructor(credentials) {
 
     if (!fs.existsSync(credentials)) {
-      throw new Error("Can't resolve for file: ",credentials);
+      console.log("CREDENTIALS: ",credentials)
+      throw new Error("Can't resolve for file: ", credentials);
     }
     const keyFile = require(credentials);
     const keys = keyFile.installed || keyFile.web;
-    const redirectUri = keys.redirect_uris.find( url => url.contains("oauth2callback"))
+    const redirectUri = keys.redirect_uris.find(url => url.includes("oauth2callback"))
     // create an oAuth client to authorize the API call
     this.oAuth2Client = new google.auth.OAuth2(
       keys.client_id,
@@ -36,25 +36,30 @@ class YoutubeClient {
     this.oAuth2Client.setCredentials({
       refresh_token: refresh_token
     });
-    return youtube();
-  }
-
-  async CreateClientByOAuth2(code) {
-    const { tokens } = await this.oAuth2Client.getToken(code);
-    this.oAuth2Client.setCredentials(tokens);
-    return youtube();
-  }
-
-  async youtube() {
     return await google.youtube({
       version: 'v3',
       auth: this.oAuth2Client,
     });
   }
 
-  async authenticate(scopes) {
+  async CreateClientByOAuth2(code) {
+    const { tokens } = await this.oAuth2Client.getToken(code);
+    this.oAuth2Client.setCredentials(tokens);
+    return await google.youtube({
+      version: 'v3',
+      auth: this.oAuth2Client,
+    });
+  }
+
+  
+  async authenticate() {
     return new Promise((resolve, reject) => {
-      // grab the url that will be used for authorization
+      
+      const scopes = [
+        'https://www.googleapis.com/auth/youtube.upload',
+        'https://www.googleapis.com/auth/youtube',
+      ];
+
       this.authorizeUrl = this.oAuth2Client.generateAuthUrl({
         access_type: 'offline',
         scope: scopes.join(' '),

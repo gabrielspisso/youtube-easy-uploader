@@ -3,7 +3,7 @@
 const fs = require('fs');
 const readline = require('readline');
 
-async function upload({youtube, fileName, title, description, privacy, description}) {
+async function upload({youtube, fileName, title, description, privacy}) {
   if (!fs.existsSync(fileName)) {
     throw new Error("Can't resolve for file: ",fileName);
   }
@@ -39,8 +39,6 @@ async function upload({youtube, fileName, title, description, privacy, descripti
     .catch(e => console.log(e));
   return res.data;
 }
-
-
 
 module.exports = {
   upload
