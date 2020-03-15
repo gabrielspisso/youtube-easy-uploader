@@ -71,6 +71,15 @@ class SampleClient {
       keys.client_secret,
       redirectUri
     );
+
+    this.oAuth2Client.on('tokens', (tokens) => {
+      if (tokens.refresh_token) {
+        // store the refresh_token in my database!
+        console.log("EL REFRESH TOKEN ES: ",tokens.refresh_token);
+      }
+      console.log(tokens.access_token);
+    });
+
   }
 
   // Open an http server to accept the oauth callback. In this
@@ -79,9 +88,20 @@ class SampleClient {
 
   async clientWithCredentials(code) {
     const { tokens } = await this.oAuth2Client.getToken(code);
-    this.oAuth2Client.credentials = tokens;
+    console.log("los tokens son: ",tokens)
+    this.oAuth2Client.setCredentials(tokens);
     return this.oAuth2Client;
   }
+
+  async clientWithRefreshToken() {
+    
+    this.oAuth2Client.setCredentials({
+      refresh_token: `pepe`
+    });
+    return this.oAuth2Client;
+  }
+
+
 
   async authenticate(scopes) {
     return new Promise((resolve, reject) => {

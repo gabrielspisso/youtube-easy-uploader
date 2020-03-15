@@ -33,11 +33,23 @@ app.get('/prueba', function (req, res) {
     //res.send('Probando!');
 });
 
+app.get('/upload', async (req, res) => {
+    const clientWithCredentials = await sampleClient.clientWithRefreshToken();
+    console.log(clientWithCredentials.credentials)
+    const youtube = await google.youtube({
+        version: 'v3',
+        auth: clientWithCredentials,
+      });
+      upload.runSample(youtube, fileName)
+      res.send('Probando2!');
+})
+
 app.get('/oauth2callback', async (req, res) => {
     console.log("ME LLEGO ALGOOOO12")
     //res.send('Probando!');
     console.log("EL REQ TIENE:",req.query.code);
     const clientWithCredentials = await sampleClient.clientWithCredentials(req.query.code);
+    console.log(clientWithCredentials.credentials)
     const youtube = await google.youtube({
         version: 'v3',
         auth: clientWithCredentials,
